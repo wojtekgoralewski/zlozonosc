@@ -1,0 +1,22 @@
+1  READ 1      // Wczytaj liczbe A do R1
+2  READ 2      // Wczytaj liczbe B do R2
+3  LOAD 1      // Zaladuj A do akumulatora
+4  JZERO 21    // Jesli A=0, skocz do konca (wynik 0)
+5  STORE 1     // [POCZATEK PETLI] Zapamietaj aktualne A
+6  HALF        // Podziel A przez 2 (dzielenie calkowite)
+7  STORE 3     // R3 = A / 2 (wartosc dla nastepnej iteracji)
+8  ADD 3       // Akumulator = (A/2) + (A/2) -> czyli A bez reszty
+9  STORE 5     // R5 = najblizsza parzysta <= A
+10 LOAD 1      // Zaladuj oryginalne A z tej iteracji
+11 SUB 5       // Akumulator = A - R5 (wynik 1 jesli nieparzysta, 0 jesli parzysta)
+12 JZERO 16    // Jesli parzysta (0), skocz do linii 16 (omin dodawanie B)
+13 LOAD 4      // Zaladuj dotychczasowy wynik z R4
+14 ADD 2       // Dodaj aktualne B do wyniku
+15 STORE 4     // Zapisz zaktualizowany wynik w R4
+16 LOAD 2      // [PUNKT SKOKU] Zaladuj B
+17 ADD 2       // Podwoj wartosc B (B = B * 2)
+18 STORE 2     // Zapisz nowe B w R2
+19 LOAD 3      // Zaladuj nowe A (wyliczone w linii 6)
+20 JGTZ 5      // Jesli A > 0, powroc do poczatku petli (linia 5)
+21 WRITE 4     // Wypisz ostateczny wynik z R4
+22 HALT        // Zakoncz program
