@@ -21,7 +21,6 @@ def print_capacity_matrix(capacity):
         print(f"  W{i} | {row_str} |")
     print(separator)
 
-# --- KLUCZOWA ZMIANA: REACHABILITY JAKO SILNIK ---
 
 def reachable(capacity, flow, start, target, parent):
     """
@@ -39,8 +38,6 @@ def reachable(capacity, flow, start, target, parent):
         if u == target:
             return True
         for v in range(n):
-            # Definicja krawędzi w sieci rezdualnej: 
-            # krawędź istnieje tylko jeśli capacity - flow > 0
             if not visited[v] and capacity[u][v] - flow[u][v] > 0:
                 parent[v] = u
                 visited[v] = True
@@ -56,19 +53,16 @@ def max_flow(capacity, s, t):
     flow = [[0] * n for _ in range(n)]
     parent = [-1] * n
     maxflow = 0
-
-    # Dopóki t jest OSIĄGALNE z s w sieci rezdualnej
+    
     while reachable(capacity, flow, s, t, parent):
         path_flow = float('inf')
         v = t
 
-        # Szukanie wąskiego gardła na znalezionej ścieżce
         while v != s:
             u = parent[v]
             path_flow = min(path_flow, capacity[u][v] - flow[u][v])
             v = u
 
-        # Aktualizacja przepływu
         v = t
         while v != s:
             u = parent[v]
@@ -77,7 +71,6 @@ def max_flow(capacity, s, t):
             v = u
 
         maxflow += path_flow
-        # Reset tablicy parent dla kolejnego sprawdzenia osiągalności
         parent = [-1] * n
 
     return maxflow
@@ -100,7 +93,6 @@ def bipartite_matching(U_size, V_size, edges):
 
     return capacity, max_flow(capacity, s, t)
 
-# --- TESTY (ZACHOWANA STRUKTURA) ---
 
 if __name__ == "__main__":
     # TEST 1: REACHABILITY (uproszczona wersja dla zwykłego grafu)
@@ -112,8 +104,6 @@ if __name__ == "__main__":
     graph_flow = [[0]*4 for _ in range(4)]
     parent = [-1]*4
     
-    # Wykorzystujemy tę samą funkcję, bo REACHABILITY w grafie 
-    # to po prostu przepływ z wagami 1 i zerowym flow na starcie.
     result = reachable(graph_capacity, graph_flow, 0, 3, parent)
     
     status = "TAK (Ścieżka istnieje)" if result else "NIE (Brak przejścia)"
