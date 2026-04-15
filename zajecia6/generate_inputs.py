@@ -57,7 +57,6 @@ def main():
             "n": n,
             "typ_testu": "Zlosliwy",
             "sat_formula": generate_malicious_sat(n),
-            # Przekazujemy pustą listę jeśli n > 14, żeby uniknąć zawieszenia
             "hamilton_graph": generate_worst_case_hamilton_graph(n) if n <= 14 else []
         })
 
