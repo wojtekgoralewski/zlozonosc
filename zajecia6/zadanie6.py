@@ -14,10 +14,9 @@ def main():
         with open('input.json', 'r') as file:
             data = json.load(file)
     except FileNotFoundError:
-        print("Nie znaleziono pliku input.json! Uruchom najpierw generate_inputs.py")
+        print("Nie znaleziono pliku input.json")
         return
 
-    # Wyrównany nagłówek tabeli
     print(f"{'n':<3} | {'Typ Testu':<9} | {'SAT Wynik':<9} | {'SAT Czas (s)':<12} | {'HAM Wynik':<9} | {'HAM Czas (s)':<12}")
     print("-" * 68)
 

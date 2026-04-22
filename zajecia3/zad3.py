@@ -10,11 +10,9 @@ class RAMMachine:
         try:
             with open(filename, 'r', encoding="utf-8") as f:
                 for line in f:
-                    # Usuwanie komentarzy i czyszczenie białych znaków
                     line = line.split("//")[0].strip()
                     if not line: continue
                     parts = line.split()
-                    # Obsługa formatu: [numer] INSTRUKCJA [argument]
                     if parts[0].isdigit():
                         instr = parts[1].upper()
                         arg = int(parts[2]) if len(parts) > 2 else None
@@ -39,12 +37,10 @@ class RAMMachine:
         while 0 <= self.pc < len(self.program):
             instr, arg = self.program[self.pc]
             
-            # Zapamiętujemy instrukcję do wyświetlenia przed zmianą PC
             display_instr = f"{instr} {arg if arg is not None else ''}"
             
             self.pc += 1 
 
-            # Logika instrukcji
             if instr == "READ":
                 self.memory[arg] = inputs[input_ptr]
                 input_ptr += 1
@@ -71,11 +67,9 @@ class RAMMachine:
                 print(f"{step:<5} | {display_instr:<12} | {self.accumulator:<10} | {self.memory}")
                 break
 
-            # Wypisywanie stanu po każdym kroku
             print(f"{step:<5} | {display_instr:<12} | {self.accumulator:<10} | {self.memory}")
             step += 1
 
-# Uruchomienie
 if __name__ == "__main__":
     machine = RAMMachine()
     machine.load_program("zasady.txt")

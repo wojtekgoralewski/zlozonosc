@@ -2,8 +2,6 @@ import time
 import random
 import sys
 
-# 1. Algorytm Dokładny (Brute Force) - Wykładniczy O(2^n)
-# Sprawdzamy rekurencyjnie każdą możliwą kombinację (biore / nie biorę)
 def brute_force(items, capacity, n):
     if n == 0 or capacity == 0:
         return 0
@@ -14,14 +12,12 @@ def brute_force(items, capacity, n):
         return brute_force(items, capacity, n-1)
     else:
         return max(
-            val + brute_force(items, capacity - weight, n-1), # Biorę
-            brute_force(items, capacity, n-1)                 # Nie biorę
+            val + brute_force(items, capacity - weight, n-1), 
+            brute_force(items, capacity, n-1)                 
         )
 
-# 2. Algorytm Dynamiczny (DP) - Pseudowielomianowy O(n * M)
 def dp_knapsack(items, M):
     n = len(items)
-    # Tworzymy tabelę A[n+1][M+1] wypełnioną zerami
     A = [[0 for _ in range(M + 1)] for _ in range(n + 1)]
     
     for i in range(1, n + 1):
@@ -46,24 +42,19 @@ def run_test():
     print("-" * 55)
 
     for n in range(1, max_n + 1):
-        # Generujemy przedmioty (wartość, waga) z zakresu 1-10
         items = [(random.randint(1, 10), random.randint(1, 10)) for _ in range(n)]
         
         for M in range(1, max_M + 1):
-            # Pomiar Brute Force
             start_bf = time.perf_counter()
             res_bf = brute_force(items, M, n)
             end_bf = time.perf_counter() - start_bf
 
-            # Pomiar DP
             start_dp = time.perf_counter()
             res_dp = dp_knapsack(items, M)
             end_dp = time.perf_counter() - start_dp
 
-            # Wypisywanie wyników na bieżąco
             print(f"{n:3d} | {M:3d} | {end_bf:15.8f} | {end_dp:15.8f}")
             
-            # Flush sprawia, że tekst pojawia się w konsoli natychmiast
             sys.stdout.flush()
 
 if __name__ == "__main__":

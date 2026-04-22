@@ -1,7 +1,7 @@
 from collections import deque
 
 def print_graph_adj_list(graph):
-    print(">> STRUKTURA GRAFU (SĄSIEDZI) <<")
+    print("STRUKTURA GRAFU (SĄSIEDZI)")
     for node, neighbors in graph.items():
         if neighbors:
             print(f"   [{node}] ---> {', '.join(map(str, neighbors))}")
@@ -9,7 +9,7 @@ def print_graph_adj_list(graph):
             print(f"   [{node}] ---> (brak)")
 
 def print_capacity_matrix(capacity):
-    print(">> MACIERZ PRZEPUSTOWOŚCI <<")
+    print("MACIERZ PRZEPUSTOWOŚCI")
     n = len(capacity)
     header = "     | " + " | ".join(f"W{i}" for i in range(n)) + " |"
     separator = "-" * len(header)
@@ -23,11 +23,6 @@ def print_capacity_matrix(capacity):
 
 
 def reachable(capacity, flow, start, target, parent):
-    """
-    To jest implementacja REACHABILITY pracująca na sieci rezdualnej.
-    Sprawdza, czy w grafie G' (gdzie krawędzie to wolna przepustowość) 
-    istnieje ścieżka od start do target.
-    """
     n = len(capacity)
     visited = [False] * n
     queue = deque([start])
@@ -45,10 +40,6 @@ def reachable(capacity, flow, start, target, parent):
     return False
 
 def max_flow(capacity, s, t):
-    """
-    Problem MAX FLOW rozwiązany poprzez wielokrotne wywoływanie REACHABILITY.
-    Zgodnie z poleceniem: przekształcamy MAX FLOW w problem REACHABILITY.
-    """
     n = len(capacity)
     flow = [[0] * n for _ in range(n)]
     parent = [-1] * n
@@ -76,9 +67,6 @@ def max_flow(capacity, s, t):
     return maxflow
 
 def bipartite_matching(U_size, V_size, edges):
-    """
-    Problem MATCHING przekształcony w problem MAX FLOW.
-    """
     n = U_size + V_size + 2
     s = n - 2
     t = n - 1
@@ -95,7 +83,6 @@ def bipartite_matching(U_size, V_size, edges):
 
 
 if __name__ == "__main__":
-    # TEST 1: REACHABILITY (uproszczona wersja dla zwykłego grafu)
     print("\n" + "="*50)
     print(" TEST 1: OSIĄGALNOŚĆ (REACHABILITY) ")
     print("="*50)
@@ -106,11 +93,10 @@ if __name__ == "__main__":
     
     result = reachable(graph_capacity, graph_flow, 0, 3, parent)
     
-    status = "TAK (Ścieżka istnieje)" if result else "NIE (Brak przejścia)"
-    print(f"\n[WYNIK] Cel: węzeł 0 -> węzeł 3")
-    print(f"[WYNIK] Czy można dotrzeć? : {status}")
+    status = "Ścieżka istnieje" if result else "NIE (Brak przejścia)"
+    print(f"\n węzeł 0 -> węzeł 3")
+    print(f" {status}")
 
-    # TEST 2: MAX FLOW
     print("\n\n" + "="*50)
     print(" TEST 2: MAKSYMALNY PRZEPŁYW (MAX FLOW) ")
     print("="*50)
@@ -123,15 +109,14 @@ if __name__ == "__main__":
     ]
     print_capacity_matrix(cap)
     res_flow = max_flow(cap, 0, 3)
-    print(f"\n[WYNIK] Wyliczony maksymalny przepływ sieci: {res_flow}")
+    print(f"\n Wyliczony maksymalny przepływ sieci: {res_flow}")
 
-    # TEST 3: MATCHING
     print("\n\n" + "="*50)
-    print(" TEST 3: SKOJARZENIA (BIPARTITE MATCHING) ")
+    print(" TEST 3:  MATCHING ")
     print("="*50)
     
     match_edges = [(0, 0), (0, 1), (1, 1)]
     cap_match, res_match = bipartite_matching(2, 2, match_edges)
     print_capacity_matrix(cap_match)
-    print(f"\n[WYNIK] Rozmiar maksymalnego skojarzenia wynosi: {res_match}")
+    print(f"\nRozmiar maksymalnego skojarzenia wynosi: {res_match}")
     print("\n" + "="*50 + "\n")
