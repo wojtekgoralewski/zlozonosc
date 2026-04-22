@@ -26,13 +26,11 @@ def compare_algorithms():
     
     for b in range(2, 50):
         n = (1 << b) - 1
-        # Algorytm dokładny
         start_exact = time.perf_counter()
         is_prime_exact(n)
         end_exact = time.perf_counter()
         time_exact = end_exact - start_exact
         
-        # Sito Erastotenesa
         start_sieve = time.perf_counter()
         sieve_of_eratosthenes(n)
         end_sieve = time.perf_counter()

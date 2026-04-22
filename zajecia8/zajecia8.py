@@ -1,83 +1,96 @@
+import pycosat
+
 def get_var(i, j, n):
-    """
-    Mapuje zmienną logiczną x_{i,j} na unikalną liczbę całkowitą dla formatu DIMACS.
-    i - pozycja na ścieżce (od 1 do n)
-    j - numer wierzchołka (od 1 do n)
-    """
     return (i - 1) * n + j
 
 def hamiltonian_path_to_sat(n, edges, directed=False):
     clauses = []
-    
     edge_set = set()
+    
     for u, v in edges:
         edge_set.add((u, v))
         if not directed:
             edge_set.add((v, u))
 
-    # 1. Dla każdego j: j musi pojawić się na ścieżce
-    # (x_{1,j} v x_{2,j} v ... v x_{n,j})
     for j in range(1, n + 1):
-        clause = [get_var(i, j, n) for i in range(1, n + 1)]
-        clauses.append(clause)
+        clauses.append([get_var(i, j, n) for i in range(1, n + 1)])
 
-    # 2. Dla każdej pary i != k: wierzchołek j nie może być na dwóch pozycjach naraz
-    # (-x_{i,j} v -x_{k,j})
     for j in range(1, n + 1):
         for i in range(1, n + 1):
             for k in range(i + 1, n + 1):
                 clauses.append([-get_var(i, j, n), -get_var(k, j, n)])
 
-    # 3. Dla każdego i: jakaś pozycja i musi mieć przypisany wierzchołek
-    # (x_{i,1} v x_{i,2} v ... v x_{i,n})
     for i in range(1, n + 1):
-        clause = [get_var(i, j, n) for j in range(1, n + 1)]
-        clauses.append(clause)
+        clauses.append([get_var(i, j, n) for j in range(1, n + 1)])
 
-    # 4. Dla każdej pary j != k: dwa wierzchołki nie mogą być na tej samej pozycji i
-    # (-x_{i,j} v -x_{i,k})
     for i in range(1, n + 1):
         for j in range(1, n + 1):
             for k in range(j + 1, n + 1):
                 clauses.append([-get_var(i, j, n), -get_var(i, k, n)])
 
-    # 5. Dla każdej pary (u, v) nie będącej krawędzią: 
-    # u i v nie mogą być na sąsiadujących pozycjach k oraz k+1
-    # (-x_{k,u} v -x_{k+1,v})
     for u in range(1, n + 1):
         for v in range(1, n + 1):
             if u != v and (u, v) not in edge_set:
-                for k in range(1, n): # k od 1 do n-1
+                for k in range(1, n): 
                     clauses.append([-get_var(k, u, n), -get_var(k + 1, v, n)])
 
     return clauses
 
-def generate_dimacs(n, clauses):
-    num_vars = n * n
-    num_clauses = len(clauses)
+def decode_solution(solution, n):
+    path = [0] * n
+    for var in solution:
+        if var > 0:
+            i = (var - 1) // n + 1
+            j = (var - 1) % n + 1
+            path[i - 1] = j
+    return " -> ".join(map(str, path))
+
+def find_hamiltonian_path_dfs(n, edges, directed=False):
+    adj = {i: [] for i in range(1, n + 1)}
+    for u, v in edges:
+        adj[u].append(v)
+        if not directed:
+            adj[v].append(u)
+
+    def dfs(path):
+        if len(path) == n:
+            return path
+        for neighbor in adj[path[-1]]:
+            if neighbor not in path:
+                res = dfs(path + [neighbor])
+                if res:
+                    return res
+        return None
+
+    for start_node in range(1, n + 1):
+        res = dfs([start_node])
+        if res:
+            return res
+            
+    return None
+
+def run_test(V, E):
+    clauses = hamiltonian_path_to_sat(V, E)
     
-    output = [f"p cnf {num_vars} {num_clauses}"]
+    hamilton_path_raw = find_hamiltonian_path_dfs(V, E)
+    has_hamilton = hamilton_path_raw is not None
+
+    sat_solution = pycosat.solve(clauses)
+    is_sat = sat_solution != "UNSAT"
+
+    dfs_res = " -> ".join(map(str, hamilton_path_raw)) if has_hamilton else "Brak"
+    sat_res = decode_solution(sat_solution, V) if is_sat else "Brak"
+
+    print(f"\nV={V}, E={E}")
+    print(f" DFS  : {dfs_res}")
+    print(f" SAT  : {sat_res}")
     
     for clause in clauses:
-        # Każda klauzula kończy się zerem
-        clause_str = " ".join(map(str, clause)) + " 0"
-        output.append(clause_str)
-        
-    return "\n".join(output)
+        print(" ".join(map(str, clause)) + " 0")
 
 if __name__ == "__main__":
-    # Definiujemy prosty graf ścieżkowy z 3 wierzchołkami: 1 -- 2 -- 3
-    # Ten graf oczywiście posiada ścieżkę Hamiltona (1->2->3)
-    V = 3
-    E = [(1, 2), (2, 3)]
-    
-    print(f"Graf: {V} wierzchołki, krawędzie: {E}")
-    
-    sat_clauses = hamiltonian_path_to_sat(V, E, directed=False)
-    dimacs_output = generate_dimacs(V, sat_clauses)
-    
-    print(dimacs_output)
-
+    run_test(3, [(1, 2), (2, 3)])
+    run_test(4, [(1, 2), (1, 3), (1, 4)])
 '''
 Pozycja 1: zmienna 1 (wierzchołek 1), 2 (wierzchołek 2), 3 (wierzchołek 3)
 
@@ -119,3 +132,5 @@ Pozycja 3: zmienna 7 (wierzchołek 1), 8 (wierzchołek 2), 9 (wierzchołek 3)
 -3 -4 0 // zakaz przeskoku w drugą stronę: z 3 do 1 (krok 1 -> 2)
 -6 -7 0 // zakaz przeskoku z 3 do 1 (krok 2 -> 3)
 '''
+
+

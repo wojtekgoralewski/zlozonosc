@@ -44,7 +44,6 @@ def main():
     test_cases = []
     
     for n in range(1, 21):
-        # 1. Wiersz: Losowy (dla SAT i HAM)
         test_cases.append({
             "n": n,
             "typ_testu": "Losowy",
@@ -52,7 +51,6 @@ def main():
             "hamilton_graph": generate_hamilton_graph(n)
         })
         
-        # 2. Wiersz: Złośliwy (dla SAT i HAM)
         test_cases.append({
             "n": n,
             "typ_testu": "Zlosliwy",
